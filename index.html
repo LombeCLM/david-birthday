@@ -213,25 +213,25 @@
     <div class="section-inner">
       <div class="section-tag">Memories of David</div>
       <p class="photos-sub">A few faces of the birthday boy</p>
-      <div class="photo-grid" id="photoGrid">
-        <!--
-          To add photos:
-          1. Create a photos/ folder in the project
-          2. Add your images there (e.g. david1.jpg, david2.jpg)
-          3. Replace this block with:
 
-          <div class="photo-frame">
-            <img src="photos/david1.jpg" alt="David">
-          </div>
-          <div class="photo-frame">
-            <img src="photos/david2.jpg" alt="David">
-          </div>
-        -->
-        <div class="photo-placeholder">
-          <i class="ti ti-camera"></i>
-          <span>Photos coming soon</span>
+      <div class="photo-stack-wrap">
+        <div class="photo-stack" id="photoStack"></div>
+        <div class="stack-nav">
+          <button class="stack-btn" id="stackPrev" aria-label="Previous"><i class="ti ti-arrow-left"></i></button>
+          <span class="stack-counter" id="stackCounter">1 / 1</span>
+          <button class="stack-btn" id="stackNext" aria-label="Next"><i class="ti ti-arrow-right"></i></button>
         </div>
+        <p class="stack-hint">Swipe or use arrows to browse</p>
       </div>
+
+      <div class="photos-center">
+        <label class="photo-add-btn" id="photoAddBtn">
+          <i class="ti ti-camera-plus"></i>
+          <span id="photoAddLabel">Add your photo</span>
+          <input type="file" accept="image/*" id="photoFileInput">
+        </label>
+      </div>
+
     </div>
   </section>
 
