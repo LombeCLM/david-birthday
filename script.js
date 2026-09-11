@@ -30,6 +30,67 @@ function tick() {
 tick();
 setInterval(tick, 1000);
 
+/* ---- CONFETTI ---- */
+(function () {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const colours = ['#2a4fa5', '#4a6fa5', '#7a9fd4', '#dce8f8', '#f4f5f7', '#ffd700', '#ff6b6b', '#a8edea'];
+  const pieces = [];
+  const count = 160;
+  let animating = true;
+
+  for (let i = 0; i < count; i++) {
+    pieces.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height - canvas.height,
+      w: Math.random() * 10 + 5,
+      h: Math.random() * 6 + 3,
+      color: colours[Math.floor(Math.random() * colours.length)],
+      speed: Math.random() * 3 + 1.5,
+      angle: Math.random() * 360,
+      spin: (Math.random() - 0.5) * 6,
+      opacity: 1
+    });
+  }
+
+  function draw() {
+    if (!animating) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let allDone = true;
+
+    pieces.forEach(p => {
+      p.y += p.speed;
+      p.angle += p.spin;
+      if (p.y < canvas.height + 20) allDone = false;
+
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.opacity);
+      ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
+      ctx.rotate((p.angle * Math.PI) / 180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    });
+
+    if (allDone) {
+      animating = false;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    } else {
+      requestAnimationFrame(draw);
+    }
+  }
+
+  draw();
+
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+})();
+
 /* ---- RSVP ---- */
 const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mjyvjlqo';
 
@@ -50,18 +111,15 @@ async function submitRsvp(e) {
   const phone  = document.getElementById('rsvp-phone').value.trim();
   const guests = parseInt(document.getElementById('rsvp-guests').value, 10) || 1;
 
-  /* Validate */
   document.getElementById('err-name').style.display   = name       ? 'none' : 'block';
   document.getElementById('err-phone').style.display  = phone      ? 'none' : 'block';
   document.getElementById('err-choice').style.display = rsvpChoice ? 'none' : 'block';
   if (!name || !phone || !rsvpChoice) return;
 
-  /* Disable button & show loading state */
   const btn = document.querySelector('.submit-btn');
   btn.textContent = 'Sending…';
   btn.disabled = true;
 
-  /* Build payload */
   const payload = {
     name,
     phone,
@@ -96,13 +154,12 @@ async function submitRsvp(e) {
     }
   } catch (err) {
     btn.textContent = 'Something went wrong — try again';
-    btn.style.color = '#c06060';
-    btn.style.borderColor = '#c06060';
+    btn.style.color = '#f08080';
     btn.disabled = false;
   }
 }
 
-/* ---- CLEAR errors on input change ---- */
+/* ---- CLEAR errors on input ---- */
 document.getElementById('rsvp-name').addEventListener('input', () => {
   document.getElementById('err-name').style.display = 'none';
 });
