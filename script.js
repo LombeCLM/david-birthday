@@ -2,6 +2,24 @@
    DAVID'S BIRTHDAY — script.js
    =========================== */
 
+/* ---- SUPABASE CONFIG ---- */
+const SUPABASE_URL = 'https://ehzkmzduwoclgtzkyfbw.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVoemttemR1d29jbGd0emt5ZmJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwOTE4MDYsImV4cCI6MjEwNDY2NzgwNn0.Kz58G2ty3Em_dZtNOdMBk8qTM99VAZ-k3zzaAfsd9-Y';
+
+async function supabase(method, body) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/wishes`, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Prefer': method === 'POST' ? 'return=representation' : ''
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  return res;
+}
+
 /* ---- NAV scroll ---- */
 const nav = document.getElementById('nav');
 window.addEventListener('scroll', () => {
@@ -84,18 +102,47 @@ setInterval(tick, 1000);
 })();
 
 /* ---- WISHES WALL ---- */
-const WISHES_ENDPOINT = 'https://formspree.io/f/mjyvjlqo';
-const wishes = [];
 
-function renderWishes() {
+// Load all wishes from Supabase and render them
+async function loadWishes() {
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/wishes?select=name,message,created_at&order=created_at.desc`,
+      {
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`
+        }
+      }
+    );
+    if (!res.ok) return;
+    const data = await res.json();
+    renderWishes(data);
+  } catch (err) {
+    console.error('Could not load wishes:', err);
+  }
+}
+
+function renderWishes(wishes) {
   const wall = document.getElementById('wishesWall');
   wall.innerHTML = '';
+  if (!wishes.length) {
+    wall.innerHTML = '<p class="wishes-empty">No messages yet — be the first to wish David! 🎉</p>';
+    return;
+  }
   wishes.forEach(w => {
     const card = document.createElement('div');
     card.className = 'wish-card';
-    card.innerHTML = `<div class="wish-card-name">— ${w.name}</div><p class="wish-card-msg">${w.message}</p>`;
+    card.innerHTML = `
+      <div class="wish-card-name">— ${escapeHtml(w.name)}</div>
+      <p class="wish-card-msg">${escapeHtml(w.message)}</p>
+    `;
     wall.appendChild(card);
   });
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 async function submitWish(e) {
@@ -112,18 +159,14 @@ async function submitWish(e) {
   btn.disabled = true;
 
   try {
-    const res = await fetch(WISHES_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ name, message, _subject: `Birthday wish from ${name} for David!` })
-    });
-
+    const res = await supabase('POST', { name, message });
     if (res.ok) {
-      wishes.unshift({ name, message });
-      renderWishes();
+      await loadWishes(); // reload all wishes so the wall is fresh
       document.getElementById('wishesForm').style.display = 'none';
       document.getElementById('wishSuccess').style.display = 'block';
-    } else throw new Error();
+    } else {
+      throw new Error();
+    }
   } catch {
     btn.textContent = 'Something went wrong — try again';
     btn.style.color = '#f08080';
@@ -137,13 +180,16 @@ function resetWishForm() {
   document.getElementById('wishesForm').style.display = 'block';
   document.getElementById('wishSuccess').style.display = 'none';
   const btn = document.querySelector('#wishesForm .submit-btn');
-  btn.textContent = 'Send my wish ♥';
+  btn.innerHTML = 'Send my wish <i class="ti ti-heart"></i>';
   btn.style.color = '';
   btn.disabled = false;
 }
 
 document.getElementById('wish-name').addEventListener('input', () => document.getElementById('err-wish-name').style.display = 'none');
 document.getElementById('wish-message').addEventListener('input', () => document.getElementById('err-wish-msg').style.display = 'none');
+
+// Load wishes when page loads
+loadWishes();
 
 /* ---- RSVP ---- */
 const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mjyvjlqo';
@@ -176,7 +222,12 @@ async function submitRsvp(e) {
     const res = await fetch(FORMSPREE_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ name, phone, attending: rsvpChoice === 'yes' ? 'Yes' : 'No', guests: rsvpChoice === 'yes' ? guests : 0, _subject: `RSVP from ${name} — David's Birthday` })
+      body: JSON.stringify({
+        name, phone,
+        attending: rsvpChoice === 'yes' ? 'Yes' : 'No',
+        guests: rsvpChoice === 'yes' ? guests : 0,
+        _subject: `RSVP from ${name} — David's Birthday`
+      })
     });
 
     if (res.ok) {

@@ -564,3 +564,12 @@ body {
   .message-quote-mark { font-size: 5rem; }
   .wishes-wall { grid-template-columns: 1fr; }
 }
+
+.wishes-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255,255,255,0.35);
+  font-style: italic;
+  padding: 2rem;
+}
