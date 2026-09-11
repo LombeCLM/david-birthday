@@ -2,31 +2,41 @@
    DAVID'S BIRTHDAY — script.js
    =========================== */
 
-/* ---- NAV: add .scrolled class on scroll ---- */
+/* ---- NAV scroll ---- */
 const nav = document.getElementById('nav');
 window.addEventListener('scroll', () => {
   nav.classList.toggle('scrolled', window.scrollY > 60);
 }, { passive: true });
 
-/* ---- COUNTDOWN to 4 Oct 2026 15:00 hrs CAT (UTC+2) ---- */
+/* ---- ANIMATED NAME (letter by letter) ---- */
+function animateName(elementId, text, baseDelay) {
+  const el = document.getElementById(elementId);
+  el.innerHTML = '';
+  [...text].forEach((char, i) => {
+    const span = document.createElement('span');
+    span.classList.add('hero-letter');
+    span.textContent = char === ' ' ? '\u00A0' : char;
+    span.style.animationDelay = `${baseDelay + i * 0.07}s`;
+    el.appendChild(span);
+  });
+}
+
+animateName('hero-david',    'David',    0.2);
+animateName('hero-silwamba', 'Silwamba', 0.7);
+
+/* ---- COUNTDOWN ---- */
 function tick() {
   const target = new Date('2026-10-04T15:00:00+02:00');
-  const now = new Date();
-  const diff = target - now;
-
+  const diff = target - new Date();
   if (diff <= 0) {
-    ['cd-days','cd-hrs','cd-min','cd-sec'].forEach(id => {
-      document.getElementById(id).textContent = '0';
-    });
+    ['cd-days','cd-hrs','cd-min','cd-sec'].forEach(id => document.getElementById(id).textContent = '0');
     return;
   }
-
   document.getElementById('cd-days').textContent = Math.floor(diff / 86400000);
   document.getElementById('cd-hrs').textContent  = Math.floor((diff % 86400000) / 3600000);
   document.getElementById('cd-min').textContent  = Math.floor((diff % 3600000) / 60000);
   document.getElementById('cd-sec').textContent  = Math.floor((diff % 60000) / 1000);
 }
-
 tick();
 setInterval(tick, 1000);
 
@@ -37,63 +47,106 @@ setInterval(tick, 1000);
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
-  const colours = ['#2a4fa5', '#4a6fa5', '#7a9fd4', '#dce8f8', '#f4f5f7', '#ffd700', '#ff6b6b', '#a8edea'];
-  const pieces = [];
-  const count = 160;
-  let animating = true;
+  const colours = ['#2a4fa5','#4a6fa5','#7a9fd4','#dce8f8','#ffffff','#ffd700','#ff6b6b','#a8edea'];
+  const pieces = Array.from({ length: 160 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height - canvas.height,
+    w: Math.random() * 10 + 5,
+    h: Math.random() * 6 + 3,
+    color: colours[Math.floor(Math.random() * colours.length)],
+    speed: Math.random() * 3 + 1.5,
+    angle: Math.random() * 360,
+    spin: (Math.random() - 0.5) * 6,
+  }));
 
-  for (let i = 0; i < count; i++) {
-    pieces.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height - canvas.height,
-      w: Math.random() * 10 + 5,
-      h: Math.random() * 6 + 3,
-      color: colours[Math.floor(Math.random() * colours.length)],
-      speed: Math.random() * 3 + 1.5,
-      angle: Math.random() * 360,
-      spin: (Math.random() - 0.5) * 6,
-      opacity: 1
-    });
-  }
+  let animating = true;
 
   function draw() {
     if (!animating) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     let allDone = true;
-
     pieces.forEach(p => {
       p.y += p.speed;
       p.angle += p.spin;
       if (p.y < canvas.height + 20) allDone = false;
-
       ctx.save();
-      ctx.globalAlpha = Math.max(0, p.opacity);
       ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
       ctx.rotate((p.angle * Math.PI) / 180);
       ctx.fillStyle = p.color;
       ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
       ctx.restore();
     });
-
-    if (allDone) {
-      animating = false;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    } else {
-      requestAnimationFrame(draw);
-    }
+    if (allDone) { animating = false; ctx.clearRect(0, 0, canvas.width, canvas.height); }
+    else requestAnimationFrame(draw);
   }
-
   draw();
-
-  window.addEventListener('resize', () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  });
+  window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
 })();
+
+/* ---- WISHES WALL ---- */
+const WISHES_ENDPOINT = 'https://formspree.io/f/mjyvjlqo';
+const wishes = [];
+
+function renderWishes() {
+  const wall = document.getElementById('wishesWall');
+  wall.innerHTML = '';
+  wishes.forEach(w => {
+    const card = document.createElement('div');
+    card.className = 'wish-card';
+    card.innerHTML = `<div class="wish-card-name">— ${w.name}</div><p class="wish-card-msg">${w.message}</p>`;
+    wall.appendChild(card);
+  });
+}
+
+async function submitWish(e) {
+  e.preventDefault();
+  const name    = document.getElementById('wish-name').value.trim();
+  const message = document.getElementById('wish-message').value.trim();
+
+  document.getElementById('err-wish-name').style.display = name    ? 'none' : 'block';
+  document.getElementById('err-wish-msg').style.display  = message ? 'none' : 'block';
+  if (!name || !message) return;
+
+  const btn = document.querySelector('#wishesForm .submit-btn');
+  btn.textContent = 'Sending…';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(WISHES_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ name, message, _subject: `Birthday wish from ${name} for David!` })
+    });
+
+    if (res.ok) {
+      wishes.unshift({ name, message });
+      renderWishes();
+      document.getElementById('wishesForm').style.display = 'none';
+      document.getElementById('wishSuccess').style.display = 'block';
+    } else throw new Error();
+  } catch {
+    btn.textContent = 'Something went wrong — try again';
+    btn.style.color = '#f08080';
+    btn.disabled = false;
+  }
+}
+
+function resetWishForm() {
+  document.getElementById('wish-name').value = '';
+  document.getElementById('wish-message').value = '';
+  document.getElementById('wishesForm').style.display = 'block';
+  document.getElementById('wishSuccess').style.display = 'none';
+  const btn = document.querySelector('#wishesForm .submit-btn');
+  btn.textContent = 'Send my wish ♥';
+  btn.style.color = '';
+  btn.disabled = false;
+}
+
+document.getElementById('wish-name').addEventListener('input', () => document.getElementById('err-wish-name').style.display = 'none');
+document.getElementById('wish-message').addEventListener('input', () => document.getElementById('err-wish-msg').style.display = 'none');
 
 /* ---- RSVP ---- */
 const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mjyvjlqo';
-
 let rsvpChoice = null;
 
 function selectRsvp(choice) {
@@ -106,7 +159,6 @@ function selectRsvp(choice) {
 
 async function submitRsvp(e) {
   e.preventDefault();
-
   const name   = document.getElementById('rsvp-name').value.trim();
   const phone  = document.getElementById('rsvp-phone').value.trim();
   const guests = parseInt(document.getElementById('rsvp-guests').value, 10) || 1;
@@ -116,30 +168,21 @@ async function submitRsvp(e) {
   document.getElementById('err-choice').style.display = rsvpChoice ? 'none' : 'block';
   if (!name || !phone || !rsvpChoice) return;
 
-  const btn = document.querySelector('.submit-btn');
+  const btn = document.querySelector('#rsvpForm .submit-btn');
   btn.textContent = 'Sending…';
   btn.disabled = true;
-
-  const payload = {
-    name,
-    phone,
-    attending: rsvpChoice === 'yes' ? 'Yes' : 'No',
-    guests: rsvpChoice === 'yes' ? guests : 0,
-    _subject: `RSVP from ${name} — David's Birthday`
-  };
 
   try {
     const res = await fetch(FORMSPREE_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ name, phone, attending: rsvpChoice === 'yes' ? 'Yes' : 'No', guests: rsvpChoice === 'yes' ? guests : 0, _subject: `RSVP from ${name} — David's Birthday` })
     });
 
     if (res.ok) {
       document.getElementById('rsvpForm').style.display = 'none';
-      const successMsg = document.getElementById('successMsg');
-      successMsg.style.display = 'block';
-
+      const msg = document.getElementById('successMsg');
+      msg.style.display = 'block';
       if (rsvpChoice === 'yes') {
         document.getElementById('successHead').textContent = "We'll see you there!";
         document.getElementById('successSub').textContent = guests > 1
@@ -147,22 +190,15 @@ async function submitRsvp(e) {
           : `Thank you, ${name}! David can't wait to celebrate with you.`;
       } else {
         document.getElementById('successHead').textContent = "We'll miss you!";
-        document.getElementById('successSub').textContent  = `Thanks for letting us know, ${name}. We'll celebrate in spirit.`;
+        document.getElementById('successSub').textContent = `Thanks for letting us know, ${name}. We'll celebrate in spirit.`;
       }
-    } else {
-      throw new Error('Server error');
-    }
-  } catch (err) {
+    } else throw new Error();
+  } catch {
     btn.textContent = 'Something went wrong — try again';
     btn.style.color = '#f08080';
     btn.disabled = false;
   }
 }
 
-/* ---- CLEAR errors on input ---- */
-document.getElementById('rsvp-name').addEventListener('input', () => {
-  document.getElementById('err-name').style.display = 'none';
-});
-document.getElementById('rsvp-phone').addEventListener('input', () => {
-  document.getElementById('err-phone').style.display = 'none';
-});
+document.getElementById('rsvp-name').addEventListener('input', () => document.getElementById('err-name').style.display = 'none');
+document.getElementById('rsvp-phone').addEventListener('input', () => document.getElementById('err-phone').style.display = 'none');

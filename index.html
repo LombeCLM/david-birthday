@@ -18,7 +18,6 @@
 </head>
 <body>
 
-  <!-- CONFETTI CANVAS -->
   <canvas id="confetti-canvas"></canvas>
 
   <!-- NAV -->
@@ -27,8 +26,9 @@
       <span class="nav-name">David Silwamba</span>
       <div class="nav-links">
         <a href="#message">Message</a>
+        <a href="#facts">About David</a>
         <a href="#details">Details</a>
-        <a href="#photos">Photos</a>
+        <a href="#wishes">Wishes</a>
         <a href="#rsvp">RSVP</a>
       </div>
       <a href="#rsvp" class="nav-cta">RSVP now</a>
@@ -44,9 +44,9 @@
     </div>
     <div class="hero-content">
       <div class="hero-badge">🎉 You're Invited</div>
-      <h1 class="hero-name">
-        David<br>
-        <span class="hero-name-last">Silwamba</span>
+      <h1 class="hero-name" aria-label="David Silwamba">
+        <span class="hero-word" id="hero-david"></span>
+        <span class="hero-word hero-word-last" id="hero-silwamba"></span>
       </h1>
       <p class="hero-sub">is celebrating another beautiful year</p>
       <div class="hero-meta">
@@ -102,11 +102,41 @@
         <p class="message-text">
           Your presence would mean so much to us as we gather to make beautiful memories, share a few laughs, and celebrate another year of his life.
         </p>
-        <p class="message-text message-cta-text">Come celebrate with us!</p>
+        <p class="message-cta-text">Come celebrate with us!</p>
         <div class="sign-off">
           <div class="sign-line"></div>
           <div class="sign-name">With Love, Suwi ❤️</div>
           <div class="sign-line"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FUN FACTS -->
+  <section class="facts-section" id="facts">
+    <div class="section-inner">
+      <div class="section-tag light">Things you should know</div>
+      <h2 class="facts-heading">A few facts about the birthday boy</h2>
+      <div class="facts-grid">
+        <div class="fact-card">
+          <div class="fact-emoji">🎱</div>
+          <p class="fact-text">He's really good at pool and yes, he <em>will</em> probably remind you of that! Never seen him lose a game — if he did, I had my eyes closed 😂</p>
+        </div>
+        <div class="fact-card">
+          <div class="fact-emoji">🧠</div>
+          <p class="fact-text">He's incredibly smart and in my books there's almost nothing he can't fix. If it's broken, just give it to him!</p>
+        </div>
+        <div class="fact-card">
+          <div class="fact-emoji">🥃</div>
+          <p class="fact-text">His favourite drink is Jägermeister — because apparently life is better with a little Jäger 😂</p>
+        </div>
+        <div class="fact-card">
+          <div class="fact-emoji">🥛</div>
+          <p class="fact-text">He's lactose intolerant but somehow always has milk and ice cream around. At this point, we've accepted that he enjoys living dangerously 😂</p>
+        </div>
+        <div class="fact-card fact-card-wide">
+          <div class="fact-emoji">🤣</div>
+          <p class="fact-text">He tells really good jokes — although whether they're actually funny or we just love him is still very much up for debate!</p>
         </div>
       </div>
     </div>
@@ -157,44 +187,29 @@
           <div class="detail-icon"><i class="ti ti-map-pin"></i></div>
           <div class="detail-label">Venue</div>
           <div class="detail-value">Zambezi Way<br>Kitwe, Zambia</div>
-          <a class="map-btn" href="https://maps.google.com/?q=Zambezi+Way+Kitwe+Zambia" target="_blank" rel="noopener">
-            <i class="ti ti-external-link"></i> Open in Maps
+          <a class="map-btn" href="https://maps.app.goo.gl/sMGpxYPiQzzayMvc8" target="_blank" rel="noopener">
+            <i class="ti ti-external-link"></i> Open in Google Maps
           </a>
         </div>
       </div>
-
-      <!-- MAP EMBED -->
       <div class="map-embed">
         <iframe
-          title="Zambezi Way, Kitwe"
-          src="https://maps.google.com/maps?q=Zambezi+Way,+Kitwe,+Zambia&output=embed"
-          width="100%" height="280"
+          title="Party venue on Google Maps"
+          src="https://maps.google.com/maps?q=-12.8154,28.2138&z=16&output=embed"
+          width="100%" height="300"
           style="border:0; display:block;"
           allowfullscreen loading="lazy"
           referrerpolicy="no-referrer-when-downgrade">
         </iframe>
-      </div>
-    </div>
-  </section>
-
-  <!-- VIBE / PLAYLIST -->
-  <section class="vibe-section">
-    <div class="section-inner vibe-inner">
-      <div class="vibe-emoji">🎵</div>
-      <div class="vibe-text">
-        <div class="section-tag light">Set the mood</div>
-        <h3 class="vibe-heading">Get in the birthday spirit</h3>
-        <p class="vibe-sub">Suwi has put together a playlist to get you in the vibe before the party.</p>
-        <a href="https://open.spotify.com/playlist" target="_blank" rel="noopener" class="vibe-btn">
-          <i class="ti ti-brand-spotify"></i> Listen on Spotify
+        <a class="map-overlay-btn" href="https://maps.app.goo.gl/sMGpxYPiQzzayMvc8" target="_blank" rel="noopener">
+          <i class="ti ti-map-2"></i> Get directions
         </a>
-        <p class="vibe-note">Replace the link above with your actual playlist URL in index.html</p>
       </div>
     </div>
   </section>
 
   <!-- PHOTOS -->
-  <section class="section" id="photos">
+  <section class="section photos-section" id="photos">
     <div class="section-inner">
       <div class="section-tag">Memories of David</div>
       <p class="photos-sub">A few faces of the birthday boy</p>
@@ -202,8 +217,8 @@
         <!--
           To add photos:
           1. Create a photos/ folder in the project
-          2. Add your images there
-          3. Replace this placeholder with:
+          2. Add your images there (e.g. david1.jpg, david2.jpg)
+          3. Replace this block with:
 
           <div class="photo-frame">
             <img src="photos/david1.jpg" alt="David">
@@ -216,6 +231,40 @@
           <i class="ti ti-camera"></i>
           <span>Photos coming soon</span>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WISHES WALL -->
+  <section class="wishes-section" id="wishes">
+    <div class="section-inner">
+      <div class="section-tag light">Birthday wishes</div>
+      <h2 class="wishes-heading">Leave David a message 💌</h2>
+      <p class="wishes-sub">Share a memory, a joke, a roast — anything goes. David will read every single one 😄</p>
+
+      <form class="wishes-form" id="wishesForm" novalidate>
+        <div class="field-group">
+          <label class="field-label" for="wish-name">Your name</label>
+          <input class="field-input" type="text" id="wish-name" placeholder="e.g. Mwansa Banda" autocomplete="name">
+          <p class="error-msg" id="err-wish-name">Please enter your name</p>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="wish-message">Your message for David</label>
+          <textarea class="field-input field-textarea" id="wish-message" rows="4" placeholder="Happy birthday David! I remember when..."></textarea>
+          <p class="error-msg" id="err-wish-msg">Please write a message</p>
+        </div>
+        <button type="submit" class="submit-btn" onclick="submitWish(event)">
+          Send my wish <i class="ti ti-heart"></i>
+        </button>
+      </form>
+
+      <div class="wishes-wall" id="wishesWall"></div>
+
+      <div class="wish-success" id="wishSuccess" style="display:none">
+        <div class="success-emoji">💌</div>
+        <p class="success-big">Message sent!</p>
+        <p class="success-sub">David is going to love this. Thank you!</p>
+        <button class="another-wish-btn" onclick="resetWishForm()">Add another message</button>
       </div>
     </div>
   </section>
@@ -241,12 +290,8 @@
         <div class="field-group">
           <label class="field-label">Will you be attending?</label>
           <div class="rsvp-choices">
-            <button type="button" class="rsvp-choice" id="choice-yes" onclick="selectRsvp('yes')">
-              🎉 Yes, I'll be there!
-            </button>
-            <button type="button" class="rsvp-choice" id="choice-no" onclick="selectRsvp('no')">
-              😢 Sorry, can't make it
-            </button>
+            <button type="button" class="rsvp-choice" id="choice-yes" onclick="selectRsvp('yes')">🎉 Yes, I'll be there!</button>
+            <button type="button" class="rsvp-choice" id="choice-no" onclick="selectRsvp('no')">😢 Sorry, can't make it</button>
           </div>
           <p class="error-msg" id="err-choice">Please let us know if you're attending</p>
         </div>
@@ -262,7 +307,7 @@
       <div class="success-msg" id="successMsg" aria-live="polite">
         <div class="success-emoji">🎊</div>
         <p class="success-big" id="successHead">We'll see you there!</p>
-        <p class="success-sub" id="successSub">Thank you for RSVPing. David can't wait to celebrate with you.</p>
+        <p class="success-sub" id="successSub">David can't wait to celebrate with you.</p>
       </div>
     </div>
   </section>
